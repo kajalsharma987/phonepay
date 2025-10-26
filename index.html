@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaction Simulator</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <style>
+      /* 1. Global and Outer Div (Off-white body) */
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #fafafa; /* Off-white body background */
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding-top: 10px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 400px;
+        overflow: hidden;
+      }
+
+      /* 2. Input Form Styling */
+      #input-form-section {
+        padding: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #555;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 95%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        background-color: #9c27b0;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        cursor: pointer;
+      }
+
+      /* 3. Header Div (White Box 1) */
+      #success-screen {
+        display: none;
+      }
+
+      .transaction-header {
+        background-color: #ffffff;
+        padding: 15px 20px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border-radius: 5px 5px 0 0;
+      }
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .header-logo {
+        height: 28px;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+      .status-message {
+        margin: 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #333;
+      }
+      .datetime {
+        font-size: 0.8em;
+        color: #555;
+        font-weight: 500;
+        margin: 0;
+        padding-left: calc(28px + 10px);
+      }
+
+      /* 4. Main Content Div (Paid To to UTR - White Box 2) */
+      .paid-to-transfer {
+        background-color: #ffffff;
+        margin-top: 10px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      /* Paid To Section */
+      .paid-to {
+        padding: 15px 20px 10px 20px;
+        font-size: 1em;
+        background-color: #ffffff;
+      }
+
+      .paid-to h3 {
+        margin-bottom: 10px;
+        color: #333;
+      }
+      .recipient-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 5px;
+      }
+      .profile-icon {
+        font-size: 24px;
+        background-color: #5d3598;
+        color: white; /* Dark purple */
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .name-phone {
+        flex-grow: 1;
+      }
+      .recipient-name {
+        font-weight: bold;
+        margin: 0 0 3px 0;
+        font-size: 1.1em;
+      }
+      .recipient-phone {
+        color: #777;
+        margin: 0;
+        font-size: 0.9em;
+      }
+      .amount {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #333;
+        flex-shrink: 0;
+      }
+
+      /* Banking Name section (R.jpg) */
+      .banking-info {
+        display: flex;
+        align-items: center;
+        margin: 10px 0 15px 0;
+        font-size: 0.9em;
+        color: #555;
+        padding: 0 20px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+      }
+      .banking-info span {
+        margin-left: 5px;
+      }
+
+      /* R.jpg image styling */
+      .r-image {
+        height: 14px;
+        width: auto;
+        margin-left: 5px;
+      }
+
+      /* Transfer Details Section */
+      .transfer-section {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+      }
+
+      .debited-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .debited-header h4 {
+        margin: 0;
+        font-weight: 600;
+      }
+
+      /* Transaction/Detail Row Styling */
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+        color: #777;
+      }
+      .detail-row .id-value {
+        color: #333;
+        font-weight: 500;
+      }
+
+      /* Debited From Section Styling */
+      .debited-image {
+        height: 25px;
+        width: auto;
+        object-fit: contain;
+        margin-right: 15px;
+        flex-shrink: 0;
+      }
+      .account-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .account-info {
+        display: flex;
+        align-items: flex-start;
+        flex-grow: 1;
+      }
+      .account-details {
+        display: flex;
+        flex-direction: column;
+      }
+      .account-details p {
+        margin: 0;
+        font-weight: bold;
+      }
+      .utr-text {
+        font-size: 0.8em;
+        font-weight: normal;
+        color: #777;
+        margin-top: 3px;
+      }
+      .debited-amount {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #333;
+        flex-shrink: 0;
+      }
+
+      /* 6. Footer Styling */
+      .powered-by {
+        text-align: center;
+        background-color: #fafafa;
+        padding: 20px 15px;
+        border-top: 1px solid #eee;
+        font-size: 1em;
+        color: #333;
+      }
+
+      .logo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo-container img {
+        height: 28px;
+        width: auto;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="input-form-section">
+        <h2 style="text-align: center; color: #9c27b0">Payment Simulator</h2>
+        <form id="payment-form">
+          <div class="form-group">
+            <label for="recipientName">Recipient Name</label>
+            <input type="text" id="recipientName" value="MEENAKSHI" required />
+          </div>
+          <div class="form-group">
+            <label for="recipientPhone">Recipient Phone</label>
+            <input type="text" id="recipientPhone" value="+919310204118" />
+          </div>
+          <div class="form-group">
+            <label for="amount">Amount (₹)</label>
+            <input type="number" id="amount" value="6500" required />
+          </div>
+          <div class="form-group">
+            <label for="utr">UTR Number</label>
+            <input type="text" id="utr" value="806357383773" required />
+          </div>
+          <div class="form-group">
+            <label for="bankingNameInput"
+              >Banking Name (For Verification)</label
+            >
+            <input
+              type="text"
+              id="bankingNameInput"
+              value="Meenakshi"
+              required
+            />
+          </div>
+          <button type="submit">Simulate Successful Transaction</button>
+        </form>
+      </div>
+
+      <div id="success-screen">
+        <header class="transaction-header">
+          <div class="header-content">
+            <img src="pe.jpg" alt="Payment App Logo" class="header-logo" />
+            <h2 class="status-message">Transaction Successful</h2>
+          </div>
+          <p class="datetime" id="transaction-datetime">
+            02:33 PM on 18 Oct 2025
+          </p>
+        </header>
+
+        <div class="paid-to-transfer">
+          <div class="paid-to">
+            <h3>Paid to</h3>
+            <div class="recipient-info">
+              <div class="profile-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="name-phone">
+                <p class="recipient-name" id="display-name">RECIPIENT NAME</p>
+                <p class="recipient-phone" id="display-phone">+91XXXXXXXXXX</p>
+              </div>
+              <span class="amount" id="display-amount-top">₹ 0</span>
+            </div>
+          </div>
+
+          <div class="banking-info">
+            <span>Banking Name</span>
+            <span style="margin-right: 5px">:</span>
+            <span id="banking-name-display">Meenakshi</span>
+            <img src="R.jpg" alt="R logo" class="r-image" />
+          </div>
+
+          <div class="transfer-section">
+            <div class="debited-header">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <i class="fas fa-list-alt" style="color: #555"></i>
+                <h4>Transfer Details</h4>
+              </div>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+
+            <div class="detail-row">
+              <span>Transaction ID</span>
+              <span class="id-value" id="display-transaction-id"
+                >T251026000000000</span
+              >
+            </div>
+
+            <div style="margin: 15px 0 5px 0; color: #777; font-size: 0.95em">
+              Debited from
+            </div>
+
+            <div class="account-row">
+              <div class="account-info">
+                <img src="d.jpg" alt="Debit Logo" class="debited-image" />
+
+                <div class="account-details">
+                  <p>XXXXXXXXXX8171</p>
+                  <span class="utr-text" id="utr-display-below"
+                    >UTR: 800000000000</span
+                  >
+                </div>
+              </div>
+              <span class="debited-amount" id="display-amount-debited"
+                >₹ 0</span
+              >
+            </div>
+          </div>
+        </div>
+        <footer class="powered-by">
+          <p>Powered by</p>
+
+          <div class="logo-container">
+            <img src="UPILogo copy.jpg" alt="UPI Logo" />
+
+            <img src="ICICI-Bank.jpeg" alt="ICICI Bank Logo" />
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("payment-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Get Input Values
+          const name = document
+            .getElementById("recipientName")
+            .value.toUpperCase();
+          const phone = document.getElementById("recipientPhone").value;
+          const amount = document.getElementById("amount").value;
+          const utr = document.getElementById("utr").value;
+          // Banking Name ab input field se aayega
+          const bankingName = document.getElementById("bankingNameInput").value;
+
+          // Time is hardcoded as per the screenshot requirement
+          const datetime = `02:33 PM on 18 Oct 2025`;
+
+          // Generate Dynamic Transaction ID
+          const now = new Date();
+          const transactionID =
+            "T" +
+            now.getFullYear().toString().substring(2) +
+            (now.getMonth() + 1).toString().padStart(2, "0") +
+            now.getDate().toString().padStart(2, "0") +
+            Math.floor(Math.random() * 9000000000000)
+              .toString()
+              .padStart(13, "0");
+
+          // Populate Success Screen
+          document.getElementById("display-name").textContent = name;
+          document.getElementById("display-phone").textContent = phone;
+          document.getElementById("display-amount-top").textContent =
+            "₹ " + parseInt(amount).toLocaleString("en-IN");
+          document.getElementById("display-amount-debited").textContent =
+            "₹ " + parseInt(amount).toLocaleString("en-IN");
+
+          document.getElementById("banking-name-display").textContent =
+            bankingName;
+          document.getElementById("utr-display-below").textContent =
+            "UTR: " + utr;
+
+          document.getElementById("transaction-datetime").textContent =
+            datetime;
+          document.getElementById("display-transaction-id").textContent =
+            transactionID;
+
+          // Switch Views
+          document.getElementById("input-form-section").style.display = "none";
+          document.getElementById("success-screen").style.display = "block";
+        });
+    </script>
+  </body>
+</html>

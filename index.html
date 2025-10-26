@@ -316,7 +316,7 @@
             <h2 class="status-message">Transaction Successful</h2>
           </div>
           <p class="datetime" id="transaction-datetime">
-            02:33 PM on 18 Oct 2025
+            07:13 PM on 26 Oct 2025
           </p>
         </header>
 
@@ -404,14 +404,40 @@
           const phone = document.getElementById("recipientPhone").value;
           const amount = document.getElementById("amount").value;
           const utr = document.getElementById("utr").value;
-          // Banking Name ab input field se aayega
           const bankingName = document.getElementById("bankingNameInput").value;
 
-          // Time is hardcoded as per the screenshot requirement
-          const datetime = `02:33 PM on 18 Oct 2025`;
+          // --- FIX: Dynamic Current Date/Time Generation ---
+          const now = new Date();
+
+          // Format Time (e.g., 07:13 PM)
+          const timeOptions = {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          };
+          // toLocaleTimeString returns "7:13 PM" which we format to "07:13PM"
+          const formattedTime = now
+            .toLocaleTimeString("en-US", timeOptions)
+            .replace(/ /g, "")
+            .replace(/:(\d\d)(AM|PM)/, " $1$2")
+            .replace(":", "");
+
+          // Format Date (e.g., 26 Oct 2025)
+          // Using 'en-GB' for DD-Mon-YYYY format and removing any comma
+          const dateOptions = {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          };
+          const formattedDate = now
+            .toLocaleDateString("en-GB", dateOptions)
+            .replace(/,/g, "");
+
+          // Combine the two strings into the required format
+          const datetime = `${formattedTime} on ${formattedDate}`;
+          // ----------------------------------------------------
 
           // Generate Dynamic Transaction ID
-          const now = new Date();
           const transactionID =
             "T" +
             now.getFullYear().toString().substring(2) +
@@ -424,6 +450,8 @@
           // Populate Success Screen
           document.getElementById("display-name").textContent = name;
           document.getElementById("display-phone").textContent = phone;
+
+          // Use toLocaleString("en-IN") for Indian number format (with commas)
           document.getElementById("display-amount-top").textContent =
             "₹ " + parseInt(amount).toLocaleString("en-IN");
           document.getElementById("display-amount-debited").textContent =
